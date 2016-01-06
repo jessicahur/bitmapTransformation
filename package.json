@@ -1,0 +1,30 @@
+{
+  "name": "bitmap",
+  "version": "0.0.1",
+  "description": "Trasnform bitmap",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp testing"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessicahur/bitmapTransformation.git"
+  },
+  "author": "Jessica Tran Hur",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jessicahur/bitmapTransformation/issues"
+  },
+  "homepage": "https://github.com/jessicahur/bitmapTransformation#readme",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "gulp": "^3.9.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-mocha": "^2.2.0",
+    "gulp-util": "^3.0.7",
+    "jshint": "^2.8.0",
+    "jshint-stylish": "^2.1.0",
+    "mocha": "^2.3.4",
+    "nodemon": "^1.8.1"
+  }
+}
