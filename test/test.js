@@ -1,16 +1,13 @@
 var assert = require('chai').assert;
-var Bmp = require('../getImage');
-var fileName = '../heart.bmp';
+var fileName = '../../non-palette-bitmap.bmp';
+var fileName2 = '../../bitmapI.bmp';
+var transform = require('../transform');
 
-describe('open file and read info', function(){
-  it('should open and read the file, then emit event which trigger the callback trasform function', function(){
-    var getBmp = new Bmp();
-    getBmp.on('image loaded', function(data){
-      console.log(data);
+describe('transforming bitmap', function(){
+  it('should invert the bitmap with and without color palette', function(){
+
+
     });
-
-    getBmp.loadImage(fileName);
-  });
 }); //end of describe
 
 

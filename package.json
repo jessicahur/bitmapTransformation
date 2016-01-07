@@ -2,7 +2,7 @@
   "name": "bitmap",
   "version": "0.0.1",
   "description": "Trasnform bitmap",
-  "main": "index.js",
+  "main": "transform.js",
   "scripts": {
     "test": "gulp testing"
   },
