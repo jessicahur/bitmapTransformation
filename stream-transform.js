@@ -28,13 +28,10 @@ processHeaderStream.prototype._transform = function (chunk, encoding, finish){
   if (offsetHeader < header.length){
     chunk.copy(header, offsetHeader);
     offsetHeader += chunk.length;
-    if (offsetHeader > header.length){
-      this.push(chunk);
     }
-    finish();
-  }
-  else {
-    if (Object.keys(imageInfo) === []){
+  if (offsetHeader > header.length) {
+    console.log(Object.keys(imageInfo));
+    if (Object.keys(imageInfo).length === 0){
       imageInfo.sizeDIB = header.readUInt32LE(14);
       imageInfo.sizePalette = header.readUInt32LE(46);
       imageInfo.numBitsPerPixel = header.readUInt16LE(28);
@@ -61,6 +58,7 @@ transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
 function watchStream( name, stream ){
     stream.on( 'data', data => {
         console.log( name, '==>', data );
+        console.log('Image info: ','sizeDIB: ', imageInfo.sizeDIB, 'sizePalette', imageInfo.sizePalette, 'offsetPixelArray',imageInfo.offsetPixelArray);
     });
 }
 watchStream('originalImageStream', originalImageStream);
