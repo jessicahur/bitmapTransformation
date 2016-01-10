@@ -1,13 +1,16 @@
 var fs = require('fs');
 var Transform = require('stream').Transform;
+var Chunker = require('stream-chunker');
 var util = require('util');
 
 var fileName = '../non-palette-bitmap.bmp';
 var outputName = '../non-palette-invertStream.bmp';
+
 var header = new Buffer(54); //assume dealing with window bitmapinfoheader
 var offsetHeader = 0;
 var offsetTransform = 0;
 var imageInfo = {};
+var test = 0;
 
 var originalImageStream = fs.createReadStream(fileName);
 var outputImageStream = fs.createWriteStream(outputName);
@@ -22,15 +25,20 @@ function transformBitmapStream(){
 }
 util.inherits(transformBitmapStream, Transform);
 
+//Initiate stream chunker
+var opts = {
+  flush: true
+};
+var chunker = Chunker(54,opts); //each emitted chunk is 54 bytes length buffer
+
 //Define stream that processes header
 var headerStream = new processHeaderStream();
 processHeaderStream.prototype._transform = function (chunk, encoding, finish){
   if (offsetHeader < header.length){
     chunk.copy(header, offsetHeader);
     offsetHeader += chunk.length;
-    }
-  if (offsetHeader > header.length) {
-    console.log(Object.keys(imageInfo));
+  }
+  if (offsetHeader >= header.length) {
     if (Object.keys(imageInfo).length === 0){
       imageInfo.sizeDIB = header.readUInt32LE(14);
       imageInfo.sizePalette = header.readUInt32LE(46);
@@ -47,23 +55,26 @@ processHeaderStream.prototype._transform = function (chunk, encoding, finish){
   }
 }
 
-//Define stream that processes color palette
+//Define stream that processes color transformation
 var colorTransformStream = new transformBitmapStream();
 transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
+  test += chunk.length;
+  console.log(test);
   this.push(chunk);
   finish();
 }
 
 //watch stream
 function watchStream( name, stream ){
-    stream.on( 'data', data => {
-        console.log( name, '==>', data );
-        console.log('Image info: ','sizeDIB: ', imageInfo.sizeDIB, 'sizePalette', imageInfo.sizePalette, 'offsetPixelArray',imageInfo.offsetPixelArray);
-    });
+  stream.on( 'data', data => {
+    console.log( name, '==>', data );
+    console.log(data.length);
+  });
 }
 watchStream('originalImageStream', originalImageStream);
+watchStream('chunker', chunker);
 watchStream('colorTransformStream', colorTransformStream);
 
-originalImageStream.pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
+originalImageStream.pipe(chunker).pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
 // .pipe(colorTransformStream).pipe(outputImageStream);
 // first.pipe(colorTransformStream);
