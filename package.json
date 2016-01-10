@@ -25,6 +25,7 @@
     "jshint": "^2.8.0",
     "jshint-stylish": "^2.1.0",
     "mocha": "^2.3.4",
-    "nodemon": "^1.8.1"
+    "nodemon": "^1.8.1",
+    "stream-chunker": "^1.1.7"
   }
 }

@@ -3,8 +3,8 @@ var Transform = require('stream').Transform;
 var Chunker = require('stream-chunker');
 var util = require('util');
 
-var fileName = '../non-palette-bitmap.bmp';
-var outputName = '../non-palette-invertStream.bmp';
+var fileName = '../bitmapI.bmp';
+var outputName = '../bitmapIStream.bmp';
 
 var header = new Buffer(54); //assume dealing with window bitmapinfoheader
 var offsetHeader = 0;
@@ -14,6 +14,10 @@ var test = 0;
 
 var originalImageStream = fs.createReadStream(fileName);
 var outputImageStream = fs.createWriteStream(outputName);
+
+function invert(integer, constant){
+  return 255 - integer;
+}
 
 function processHeaderStream(){
   Transform.call(this);
@@ -58,8 +62,14 @@ processHeaderStream.prototype._transform = function (chunk, encoding, finish){
 //Define stream that processes color transformation
 var colorTransformStream = new transformBitmapStream();
 transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
-  test += chunk.length;
-  console.log(test);
+  offsetTransform += chunk.length;
+  if (imageInfo.sizePalette > 0 && (offsetTransform > imageInfo.sizeDIB + 14) && (offsetTransform < imageInfo.sizeDIB + 14 + imageInfo.sizePalette)){
+    for (var ii = 0; ii < chunk.length; ii ++){
+      chunk[ii] = invert(chunk[ii], 0);
+    }
+  } else {
+
+  }
   this.push(chunk);
   finish();
 }
