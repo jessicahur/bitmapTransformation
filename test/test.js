@@ -54,7 +54,7 @@ describe('transform bitmap stream', function() {
   });
 
   it('should invert and output bitmap image without color palette', function() {
-    var outputFileName = '../2.bmp';
+    var outputFileName = '../non-palette-stream.bmp';
 
     streamTransform(fileName2, outputFileName);
 

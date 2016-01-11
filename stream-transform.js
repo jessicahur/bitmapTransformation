@@ -121,10 +121,10 @@ function streamTransform(inputFilePath, outputFilePath) {
   originalImageStream.pipe(chunker).pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
 }
 
-// var fileName2 = '../non-palette-bitmap.bmp';
-// streamTransform(fileName2,'../1.bmp');
+var fileName2 = '../non-palette-bitmap.bmp';
+streamTransform(fileName2,'../1.bmp');
 
-// var fileName = '../bitmapI.bmp';
-// streamTransform(fileName, '../2.bmp');
+var fileName = '../bitmapI.bmp';
+streamTransform(fileName, '../2.bmp');
 
 module.exports = streamTransform;
