@@ -6,7 +6,6 @@ var fs = require('fs');
 var fileName = './palette-bitmap.bmp';
 var fileName2 = './non-palette-bitmap.bmp';
 
-streamTransform(fileName2, '../5.bmp');
 
 describe('transform bitmap offstream', function() {
 
@@ -78,19 +77,24 @@ describe('transform bitmap offstream', function() {
   //end to end test for streaming
   it('should produce the matching image as the palette standard via invert stream', function(done) {
     var buf7 = fs.readFileSync('./test/stream-pal.bmp');
-    streamTransform(fileName, '../5.bmp');
-    var buf7compare = fs.readFileSync('../5.bmp');
-    console.log('BUF7CP', buf7compare.length);
-    assert.equal(buf7.compare(buf7compare), 0, 'it fails the test');
-    done();
+
+    streamTransform(fileName, '../5.bmp', function() {
+      var buf7compare = fs.readFileSync('../5.bmp');
+      console.log('BUF7CP', buf7compare.length);
+      assert.equal(buf7.compare(buf7compare), 0, 'it fails the test');
+      done();
+    });
   });
+
   it('should produce the matching image as the non-palette standard via invert stream', function(done) {
     var buf8 = fs.readFileSync('./test/stream-nonpal.bmp');
-    streamTransform(fileName2, '../6.bmp');
-    var buf8compare = fs.readFileSync('../6.bmp');
-    console.log('BUF8CP',buf8compare.length);
-    assert.equal(buf8.compare(buf8compare), 0, 'it fails the test');
-    done();
+
+    streamTransform(fileName2, '../6.bmp', function() {
+      var buf8compare = fs.readFileSync('../6.bmp');
+      console.log('BUF8CP',buf8compare.length);
+      assert.equal(buf8.compare(buf8compare), 0, 'it fails the test');
+      done();
+    });
   });
 });
 

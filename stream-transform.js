@@ -17,6 +17,9 @@ function streamTransform(inputFilePath, outputFilePath, callback) {
   var totalData = 0;
   var paletteProcessed = 0;
   var imageInfo = {};
+
+  outputImageStream.on('finish', callback);
+
   function invert(integer, constant){
     return 255 - integer;
   }
