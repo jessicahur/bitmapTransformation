@@ -3,16 +3,20 @@ var Transform = require('stream').Transform;
 var Chunker = require('stream-chunker');
 var util = require('util');
 
-var header = new Buffer(54); //assume dealing with window bitmapinfoheader
-var offsetHeader = 0;
-var totalData = 0;
-var paletteProcessed = 0;
-var imageInfo = {};
+// var header = new Buffer(54); //assume dealing with window bitmapinfoheader
+// var offsetHeader = 0;
+// var totalData = 0;
+// var paletteProcessed = 0;
+// var imageInfo = {};
 
 function streamTransform(inputFilePath, outputFilePath) {
   var originalImageStream = fs.createReadStream(inputFilePath);
   var outputImageStream = fs.createWriteStream(outputFilePath);
-
+  var header = new Buffer(54); //assume dealing with window bitmapinfoheader
+  var offsetHeader = 0;
+  var totalData = 0;
+  var paletteProcessed = 0;
+  var imageInfo = {};
   function invert(integer, constant){
     return 255 - integer;
   }
@@ -100,10 +104,10 @@ function streamTransform(inputFilePath, outputFilePath) {
   originalImageStream.pipe(chunker).pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
 }
 
-var fileName2 = '../non-palette-bitmap.bmp';
-streamTransform(fileName2,'../1.bmp');
+// var fileName2 = '../non-palette-bitmap.bmp';
+// streamTransform(fileName2,'../6.bmp');
 
-var fileName = '../bitmapI.bmp';
-streamTransform(fileName, '../2.bmp');
+// var fileName = '../bitmapI.bmp';
+// streamTransform(fileName, '../5.bmp');
 
 module.exports = streamTransform;
