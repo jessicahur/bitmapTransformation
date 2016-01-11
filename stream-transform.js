@@ -60,11 +60,9 @@ function streamTransform(inputFilePath, outputFilePath) {
   var colorTransformStream = new transformBitmapStream();
   transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
     totalData += chunk.length;
-    // console.log('IMAGE INFO', imageInfo);
 
     //If there is color palette:
     if (imageInfo.sizePalette > 0){
-      // console.log('RUNNING COLOR PALETTE');
       var paletteOffset = 14 + imageInfo.sizeDIB;
       if (totalData > paletteOffset && paletteProcessed < imageInfo.sizePalette) {
         if (chunk.length < imageInfo.sizePalette - paletteProcessed){
@@ -72,18 +70,11 @@ function streamTransform(inputFilePath, outputFilePath) {
             chunk[ii] = invert(chunk[ii],0);
           }
           paletteProcessed += chunk.length;
-          // console.log('FIRST CASE ', paletteProcessed);
-          // console.log('totalData ', totalData);
-          // console.log('paletteOffset ', paletteOffset);
-          // console.log('paletteProcessed ', paletteProcessed);
-
         }
         else {
           for (var ii = 0; ii < imageInfo.sizePalette - paletteProcessed; ii++){
             chunk[ii] = invert(chunk[ii],0);
           }
-          console.log('SECOND CASE', paletteProcessed);
-          console.log('LEFT', imageInfo.sizePalette - paletteProcessed);
           paletteProcessed += chunk.length;
         }
       }
@@ -106,18 +97,6 @@ function streamTransform(inputFilePath, outputFilePath) {
     this.push(chunk);
     finish();
   };
-
-  //watch stream
-  // function watchStream( name, stream ){
-  //   stream.on( 'data', data => {
-  //     console.log( name, '==>', data );
-  //     console.log(data.length);
-  //   });
-  // }
-  // watchStream('originalImageStream', originalImageStream);
-  // watchStream('chunker', chunker);
-  // watchStream('colorTransformStream', colorTransformStream);
-
   originalImageStream.pipe(chunker).pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
 }
 
