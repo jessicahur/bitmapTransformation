@@ -39,6 +39,10 @@ function scale(integer, constant){
     return output;
   }
 }
+function UserException(message) {
+   this.message = message;
+   this.name = "UserException";
+}
 
 transform.doIt = function(file, outputFile, option, constant){
   fs.readFile(file, function(err, data){
@@ -49,7 +53,7 @@ transform.doIt = function(file, outputFile, option, constant){
 
     //check if file is BMP
     if (buf.toString('utf-8',0,2)!=='BM'){
-      throw 'Type of file loaded is not a Bitmap file. Header type read does not match \'BM\''; //https://github.com/imccunn/bmp-transform/blob/master/lib/Bitmap.js
+      throw new UserException('Type of file loaded is not a Bitmap file. Header type read does not match \'BM\''); //https://github.com/imccunn/bmp-transform/blob/master/lib/Bitmap.js
     }
 
     //check if the option of transformation is supported
@@ -58,7 +62,7 @@ transform.doIt = function(file, outputFile, option, constant){
     var outputFilePath = outputFile;
     var options = Object.keys(transform.options);
     if (options.indexOf[inputOption]===-1){
-      throw 'This transformation is not supported';
+      throw new UserException('This transformation is not supported');
     }
 
     //run transformation here
