@@ -5,6 +5,8 @@ var util = require('util');
 
 var fileName = '../bitmapI.bmp';
 var outputName = '../bitmapIStream.bmp';
+var fileName2 = '../non-palette-bitmap.bmp';
+var outputName2 = '../non-palette-bitmapStream.bmp';
 
 var header = new Buffer(54); //assume dealing with window bitmapinfoheader
 var offsetHeader = 0;
@@ -12,8 +14,8 @@ var offsetTransform = 0;
 var imageInfo = {};
 var test = 0;
 
-var originalImageStream = fs.createReadStream(fileName);
-var outputImageStream = fs.createWriteStream(outputName);
+var originalImageStream = fs.createReadStream(fileName2);
+var outputImageStream = fs.createWriteStream(outputName2);
 
 function invert(integer, constant){
   return 255 - integer;
@@ -63,12 +65,22 @@ processHeaderStream.prototype._transform = function (chunk, encoding, finish){
 var colorTransformStream = new transformBitmapStream();
 transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
   offsetTransform += chunk.length;
-  if (imageInfo.sizePalette > 0 && (offsetTransform > imageInfo.sizeDIB + 14) && (offsetTransform < imageInfo.sizeDIB + 14 + imageInfo.sizePalette)){
+  if (imageInfo.sizePalette > 0 && (offsetTransform > imageInfo.sizeDIB + 14) && (offsetTransform < 54 + imageInfo.sizePalette)){
     for (var ii = 0; ii < chunk.length; ii ++){
       chunk[ii] = invert(chunk[ii], 0);
     }
   } else {
-
+    if (offsetTransform > imageInfo.offsetPixelArray) {
+      if (offsetTransform - imageInfo.offsetPixelArray < 54){
+        for(var jj = offsetTransform - imageInfo.offsetPixelArray; jj < chunk.length; jj ++){
+          chunk[jj] = invert(chunk[jj], 0);
+        }
+      } else {
+        for (var kk = 0; kk < chunk.length; kk ++) {
+          chunk[kk] = invert(chunk[kk], 0);
+        }
+      }
+    }
   }
   this.push(chunk);
   finish();
