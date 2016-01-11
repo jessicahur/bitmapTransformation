@@ -73,7 +73,7 @@ transform.doIt = function(file, outputFile, option, constant){
     var offsetPixelArray = buf.readUInt32LE(10);
 
     //for the case of non-palette:
-    if (sizePalette === 0 && numBitsPerPixel === 8){
+    if (sizePalette === 0){
       for (var ii = offsetPixelArray; ii<buf.length; ii++){
         var integer = buf[ii];
         buf[ii] = transform.options[inputOption](integer, constantInput);

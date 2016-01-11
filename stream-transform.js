@@ -5,7 +5,8 @@ var util = require('util');
 
 var header = new Buffer(54); //assume dealing with window bitmapinfoheader
 var offsetHeader = 0;
-var offsetTransform = 0;
+var totalData = 0;
+var paletteProcessed = 0;
 var imageInfo = {};
 
 function streamTransform(inputFilePath, outputFilePath) {
@@ -45,7 +46,6 @@ function streamTransform(inputFilePath, outputFilePath) {
         imageInfo.sizePalette = header.readUInt32LE(46);
         imageInfo.numBitsPerPixel = header.readUInt16LE(28);
         imageInfo.offsetPixelArray = header.readUInt32LE(10);
-        offsetTransform = offsetHeader - header.length;
         this.push(chunk);
         finish();
       }
@@ -54,25 +54,46 @@ function streamTransform(inputFilePath, outputFilePath) {
         finish();
       }
     }
-  }
+  };
 
   //Define stream that processes color invert
   var colorTransformStream = new transformBitmapStream();
   transformBitmapStream.prototype._transform = function(chunk, encoding, finish){
-    offsetTransform += chunk.length;
+    totalData += chunk.length;
+    // console.log('IMAGE INFO', imageInfo);
 
     //If there is color palette:
-    if (imageInfo.sizePalette > 0 && (offsetTransform > imageInfo.sizeDIB + 14) && (offsetTransform < 54 + imageInfo.sizePalette)){
-      for (var ii = 0; ii < chunk.length; ii ++){
-        chunk[ii] = invert(chunk[ii], 0);
+    if (imageInfo.sizePalette > 0){
+      // console.log('RUNNING COLOR PALETTE');
+      var paletteOffset = 14 + imageInfo.sizeDIB;
+      if (totalData > paletteOffset && paletteProcessed < imageInfo.sizePalette) {
+        if (chunk.length < imageInfo.sizePalette - paletteProcessed){
+          for (var ii = 0; ii < chunk.length; ii++){
+            chunk[ii] = invert(chunk[ii],0);
+          }
+          paletteProcessed += chunk.length;
+          // console.log('FIRST CASE ', paletteProcessed);
+          // console.log('totalData ', totalData);
+          // console.log('paletteOffset ', paletteOffset);
+          // console.log('paletteProcessed ', paletteProcessed);
+
+        }
+        else {
+          for (var ii = 0; ii < imageInfo.sizePalette - paletteProcessed; ii++){
+            chunk[ii] = invert(chunk[ii],0);
+          }
+          console.log('SECOND CASE', paletteProcessed);
+          console.log('LEFT', imageInfo.sizePalette - paletteProcessed);
+          paletteProcessed += chunk.length;
+        }
       }
     }
 
-    //If there is no colo palette:
+    //If there is no color palette:
     else {
-      if (offsetTransform > imageInfo.offsetPixelArray) {
-        if (offsetTransform - imageInfo.offsetPixelArray < 54){
-          for(var jj = offsetTransform - imageInfo.offsetPixelArray; jj < chunk.length; jj ++){
+      if (totalData > imageInfo.offsetPixelArray) {
+        if (totalData - imageInfo.offsetPixelArray < 54){
+          for(var jj = totalData - imageInfo.offsetPixelArray; jj < chunk.length; jj ++){
             chunk[jj] = invert(chunk[jj], 0);
           }
         } else {
@@ -84,9 +105,9 @@ function streamTransform(inputFilePath, outputFilePath) {
     }
     this.push(chunk);
     finish();
-  }
+  };
 
-  // //watch stream
+  //watch stream
   // function watchStream( name, stream ){
   //   stream.on( 'data', data => {
   //     console.log( name, '==>', data );
@@ -99,5 +120,11 @@ function streamTransform(inputFilePath, outputFilePath) {
 
   originalImageStream.pipe(chunker).pipe(headerStream).pipe(colorTransformStream).pipe(outputImageStream);
 }
+
+// var fileName2 = '../non-palette-bitmap.bmp';
+// streamTransform(fileName2,'../1.bmp');
+
+// var fileName = '../bitmapI.bmp';
+// streamTransform(fileName, '../2.bmp');
 
 module.exports = streamTransform;
