@@ -9,7 +9,7 @@ var util = require('util');
 // var paletteProcessed = 0;
 // var imageInfo = {};
 
-function streamTransform(inputFilePath, outputFilePath) {
+function streamTransform(inputFilePath, outputFilePath, callback) {
   var originalImageStream = fs.createReadStream(inputFilePath);
   var outputImageStream = fs.createWriteStream(outputFilePath);
   var header = new Buffer(54); //assume dealing with window bitmapinfoheader

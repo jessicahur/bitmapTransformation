@@ -44,16 +44,16 @@ function UserException(message) {
    this.name = "UserException";
 }
 
-transform.doIt = function(file, outputFile, option, constant){
+transform.doIt = function(file, outputFile, option, constant, callback){
   fs.readFile(file, function(err, data){
     if (err){
-      throw err;
+      callback(err);
     }
     var buf = data;
 
     //check if file is BMP
     if (buf.toString('utf-8',0,2)!=='BM'){
-      throw new UserException('Type of file loaded is not a Bitmap file. Header type read does not match \'BM\''); //https://github.com/imccunn/bmp-transform/blob/master/lib/Bitmap.js
+      callback(new UserException('Type of file loaded is not a Bitmap file. Header type read does not match \'BM\'')); //https://github.com/imccunn/bmp-transform/blob/master/lib/Bitmap.js
     }
 
     //check if the option of transformation is supported
@@ -62,7 +62,7 @@ transform.doIt = function(file, outputFile, option, constant){
     var outputFilePath = outputFile;
     var options = Object.keys(transform.options);
     if (options.indexOf[inputOption]===-1){
-      throw new UserException('This transformation is not supported');
+      callback(new UserException('This transformation is not supported'));
     }
 
     //run transformation here
@@ -78,7 +78,7 @@ transform.doIt = function(file, outputFile, option, constant){
         var integer = buf[ii];
         buf[ii] = transform.options[inputOption](integer, constantInput);
       }
-      fs.writeFileSync(outputFilePath,buf);
+      fs.writeFile(outputFilePath,buf, callback);
     }
 
     //for the case of palette:
@@ -88,9 +88,10 @@ transform.doIt = function(file, outputFile, option, constant){
         var integer = buf[jj];
         buf[jj] = transform.options[inputOption](integer, constantInput);
       }
-      fs.writeFileSync(outputFilePath,buf);
+      fs.writeFile(outputFilePath,buf,callback);
     }
     });//end of readFile
+
 };//end of doIt
 
 module.exports = transform;
